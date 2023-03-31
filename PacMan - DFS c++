@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <tuple>
+#include <map>
+using namespace std;
+ 
+queue<pair<int, int>> dfs_nodes;
+vector<pair<int, int>> dfs_path;
+ 
+void dfs( int r, int c, int pacman_r, int pacman_c, int food_r, int food_c, vector <string> grid){
+     
+    map< pair<int, int>, bool> vis;
+     
+    stack<tuple<int, int, vector<pair<int, int>>>> st;
+    vector<pair<int, int>> path {};
+    st.push(make_tuple(pacman_r, pacman_c, path));
+    vis[make_pair(pacman_r, pacman_c)] = true;
+     
+    while (!st.empty()) {
+        tuple<int, int, vector<pair<int, int>>> p = st.top();
+        st.pop();
+         
+        dfs_nodes.push(make_pair(get<0>(p), get<1>(p)));
+         
+        int curr_r = get<0>(p), curr_c = get<1>(p);
+        path = get<2>(p);
+        path.push_back(make_pair(curr_r, curr_c));
+         
+         
+        if (grid[curr_r][curr_c] != '%') {
+         
+            if (curr_r == food_r && curr_c == food_c) {
+                dfs_path = path;
+                break;
+            }
+           
+            if (curr_r-1 >= 0 && grid[curr_r-1][curr_c] != '%'
+&& !vis[make_pair(curr_r-1, curr_c)]) {
+ 
+                st.push(make_tuple(curr_r-1, curr_c, path));
+                vis[make_pair(curr_r-1, curr_c)] = true;
+            }
+            if (curr_c-1 >= 0 && grid[curr_r][curr_c-1] != '%'
+&& !vis[make_pair(curr_r, curr_c-1)]) {
+ 
+                st.push(make_tuple(curr_r, curr_c-1, path));
+                vis[make_pair(curr_r, curr_c-1)] = true;
+            }
+            if (curr_c+1 < c && grid[curr_r][curr_c+1] != '%'
+&& !vis[make_pair(curr_r, curr_c+1)]) {
+ 
+                st.push(make_tuple(curr_r, curr_c+1, path));
+                vis[make_pair(curr_r, curr_c+1)] = true;
+            }
+            if (curr_r+1 < r && grid[curr_r+1][curr_c] != '%'
+&& !vis[make_pair(curr_r+1, curr_c)]) {
+ 
+                st.push(make_tuple(curr_r+1, curr_c, path));
+                vis[make_pair(curr_r+1, curr_c)] = true;
+            }
+        }
+    }
+}
+ 
+int main(int argc, const char * argv[]) {
+    int r,c, pacman_r, pacman_c, food_r, food_c;
+     
+    cin >> pacman_r >> pacman_c;
+    cin >> food_r >> food_c;
+    cin >> r >> c;
+     
+    vector <string> grid;
+ 
+    for (int i=0; i<r; i++) {
+        string s; cin >> s;
+        grid.push_back(s);
+    }
+ 
+    dfs(r, c, pacman_r, pacman_c, food_r, food_c, grid);
+     
+    cout<<(dfs_nodes.size())<<endl;
+    while (!dfs_nodes.empty()) {
+        pair<int, int> p = dfs_nodes.front();
+        cout<<p.first<<" "<<p.second<<endl;
+        dfs_nodes.pop();
+    }
+     
+     
+    cout<<(dfs_path.size()-1)<<endl;
+    for (int i=0; i<dfs_path.size(); i++) {
+        pair<int, int> p = dfs_path[i];
+        cout<<p.first<<" "<<p.second<<endl;
+    }
+     
+    return 0;
+}
